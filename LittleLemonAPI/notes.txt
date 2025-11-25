@@ -1,0 +1,6 @@
+SuperUser:
+name: tayyab    ;   password: 123456
+
+Users:
+name: user     ;   password: user1234
+name: mario    ;   password: luigi123

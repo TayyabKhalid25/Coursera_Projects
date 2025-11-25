@@ -1,0 +1,249 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-11-25T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:2025.1.0",
+  "resources": [
+    {
+      "_id": "wrk_littlelemon",
+      "name": "LittleLemon API",
+      "description": "Insomnia workspace for LittleLemon Django API",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_base",
+      "parentId": "wrk_littlelemon",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8000",
+        "token": ""
+      },
+      "_type": "environment"
+    },
+    {
+      "_id": "req_register",
+      "parentId": "wrk_littlelemon",
+      "name": "Register User",
+      "method": "POST",
+      "url": "{{ base_url }}/auth/users/",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"testpassword123\"\n}"
+      },
+      "headers": [],
+      "_type": "request"
+    },
+    {
+      "_id": "req_login",
+      "parentId": "wrk_littlelemon",
+      "name": "Token Login",
+      "method": "POST",
+      "url": "{{ base_url }}/auth/token/login/",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"testuser\",\n  \"password\": \"testpassword123\"\n}"
+      },
+      "headers": [],
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_menu",
+      "parentId": "wrk_littlelemon",
+      "name": "Get Menu Items",
+      "method": "GET",
+      "url": "{{ base_url }}/api/menu-items",
+      "headers": [],
+      "_type": "request"
+    },
+    {
+      "_id": "req_create_menu",
+      "parentId": "wrk_littlelemon",
+      "name": "Create Menu Item (Manager)",
+      "method": "POST",
+      "url": "{{ base_url }}/api/menu-items",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Margherita Pizza\",\n  \"price\": \"9.99\",\n  \"featured\": false,\n  \"category\": \"Pizza\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Token {{ token }}"
+        }
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_menu_item",
+      "parentId": "wrk_littlelemon",
+      "name": "Get Menu Item by ID",
+      "method": "GET",
+      "url": "{{ base_url }}/api/menu-items/1",
+      "headers": [],
+      "_type": "request"
+    },
+    {
+      "_id": "req_list_managers",
+      "parentId": "wrk_littlelemon",
+      "name": "List Managers (Manager only)",
+      "method": "GET",
+      "url": "{{ base_url }}/api/groups/manager/users",
+      "headers": [
+        {"name": "Authorization", "value": "Token {{ token }}"}
+      ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_add_manager",
+      "parentId": "wrk_littlelemon",
+      "name": "Add Manager (Manager only)",
+      "method": "POST",
+      "url": "{{ base_url }}/api/groups/manager/users",
+      "body": { "mimeType": "application/json", "text": "{\n  \"username\": \"someuser\"\n}" },
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_delete_manager",
+      "parentId": "wrk_littlelemon",
+      "name": "Remove Manager (Manager only)",
+      "method": "DELETE",
+      "url": "{{ base_url }}/api/groups/manager/users/3",
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_list_delivery",
+      "parentId": "wrk_littlelemon",
+      "name": "List Delivery Crew (Manager only)",
+      "method": "GET",
+      "url": "{{ base_url }}/api/groups/delivery-crew/users",
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_add_delivery",
+      "parentId": "wrk_littlelemon",
+      "name": "Add Delivery Crew (Manager only)",
+      "method": "POST",
+      "url": "{{ base_url }}/api/groups/delivery-crew/users",
+      "body": { "mimeType": "application/json", "text": "{\n  \"username\": \"delivery1\"\n}" },
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_delete_delivery",
+      "parentId": "wrk_littlelemon",
+      "name": "Remove Delivery Crew (Manager only)",
+      "method": "DELETE",
+      "url": "{{ base_url }}/api/groups/delivery-crew/users/4",
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_cart",
+      "parentId": "wrk_littlelemon",
+      "name": "Get Cart Items (Customer)",
+      "method": "GET",
+      "url": "{{ base_url }}/api/cart/menu-items",
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_add_cart",
+      "parentId": "wrk_littlelemon",
+      "name": "Add to Cart (Customer)",
+      "method": "POST",
+      "url": "{{ base_url }}/api/cart/menu-items",
+      "body": { "mimeType": "application/json", "text": "{\n  \"menuitem_id\": 1,\n  \"quantity\": 2\n}" },
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_clear_cart",
+      "parentId": "wrk_littlelemon",
+      "name": "Clear Cart (Customer)",
+      "method": "DELETE",
+      "url": "{{ base_url }}/api/cart/menu-items",
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_list_orders",
+      "parentId": "wrk_littlelemon",
+      "name": "List Orders",
+      "method": "GET",
+      "url": "{{ base_url }}/api/orders",
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_create_order",
+      "parentId": "wrk_littlelemon",
+      "name": "Create Order (Customer)",
+      "method": "POST",
+      "url": "{{ base_url }}/api/orders",
+      "body": { "mimeType": "application/json", "text": "{}" },
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_order",
+      "parentId": "wrk_littlelemon",
+      "name": "Get Order by ID",
+      "method": "GET",
+      "url": "{{ base_url }}/api/orders/1",
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_update_order_manager",
+      "parentId": "wrk_littlelemon",
+      "name": "Update Order (Manager)",
+      "method": "PUT",
+      "url": "{{ base_url }}/api/orders/1",
+      "body": { "mimeType": "application/json", "text": "{\n  \"delivery_crew\": 5,\n  \"status\": true\n}" },
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_update_order_delivery",
+      "parentId": "wrk_littlelemon",
+      "name": "Patch Order Status (Delivery crew)",
+      "method": "PATCH",
+      "url": "{{ base_url }}/api/orders/1",
+      "body": { "mimeType": "application/json", "text": "{\n  \"status\": true\n}" },
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_delete_order",
+      "parentId": "wrk_littlelemon",
+      "name": "Delete Order (Manager)",
+      "method": "DELETE",
+      "url": "{{ base_url }}/api/orders/1",
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    },
+    {
+      "_id": "req_get_ratings",
+      "parentId": "wrk_littlelemon",
+      "name": "Get Ratings",
+      "method": "GET",
+      "url": "{{ base_url }}/api/ratings",
+      "headers": [],
+      "_type": "request"
+    },
+    {
+      "_id": "req_add_rating",
+      "parentId": "wrk_littlelemon",
+      "name": "Add Rating (Authenticated)",
+      "method": "POST",
+      "url": "{{ base_url }}/api/ratings",
+      "body": { "mimeType": "application/json", "text": "{\n  \"menuitem_id\": 1,\n  \"rating\": 4\n}" },
+      "headers": [ {"name":"Authorization","value":"Token {{ token }}"} ],
+      "_type": "request"
+    }
+  ]
+}
