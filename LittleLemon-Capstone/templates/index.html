@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Little Lemon</title>
+    <style>
+        body { font-family: sans-serif; margin: 2rem; }
+        .hidden { display: none; }
+        .section { margin-bottom: 2rem; border: 1px solid #ccc; padding: 1rem; border-radius: 5px; }
+        label { display: block; margin-bottom: 0.5rem; }
+        input { margin-bottom: 1rem; padding: 0.5rem; width: 100%; max-width: 300px; }
+        button { padding: 0.5rem 1rem; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Little Lemon Restaurant</h1>
+
+    <div id="auth-status">
+        <p id="welcome-msg">Not logged in</p>
+        <button id="logout-btn" class="hidden" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Login Section -->
+    <div id="login-section" class="section">
+        <h2>Login</h2>
+        <form onsubmit="login(event)">
+            <label>Username: <input type="text" id="username" required></label>
+            <label>Password: <input type="password" id="password" required></label>
+            <button type="submit">Login</button>
+        </form>
+        <p id="login-error" style="color: red;"></p>
+    </div>
+
+    <!-- Menu Section (Public) -->
+    <div id="menu-section" class="section">
+        <h2>Menu</h2>
+        <button onclick="loadMenu()">Refresh Menu</button>
+        <ul id="menu-list"></ul>
+    </div>
+
+    <!-- Bookings Section (Authenticated) -->
+    <div id="booking-section" class="section hidden">
+        <h2>Bookings</h2>
+        
+        <h3>Your Bookings</h3>
+        <button onclick="loadBookings()">Refresh Bookings</button>
+        <table id="booking-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Guests</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <h3>Make a Booking</h3>
+        <form onsubmit="createBooking(event)">
+            <label>Name: <input type="text" id="booking-name" required></label>
+            <label>No. of Guests: <input type="number" id="booking-guests" required></label>
+            <label>Date: <input type="date" id="booking-date" required></label>
+            <button type="submit">Book Table</button>
+        </form>
+        <p id="booking-msg"></p>
+    </div>
+
+    <script>
+        const API_BASE = ''; // Relative path
+
+        function getToken() {
+            return localStorage.getItem('auth_token');
+        }
+
+        function updateUI() {
+            const token = getToken();
+            if (token) {
+                document.getElementById('welcome-msg').innerText = 'Logged in';
+                document.getElementById('logout-btn').classList.remove('hidden');
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('booking-section').classList.remove('hidden');
+                loadBookings();
+            } else {
+                document.getElementById('welcome-msg').innerText = 'Not logged in';
+                document.getElementById('logout-btn').classList.add('hidden');
+                document.getElementById('login-section').classList.remove('hidden');
+                document.getElementById('booking-section').classList.add('hidden');
+            }
+            loadMenu(); // Always load menu
+        }
+
+        async function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('login-error');
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/token/login/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('auth_token', data.auth_token);
+                    errorMsg.innerText = '';
+                    updateUI();
+                } else {
+                    const data = await response.json();
+                    errorMsg.innerText = 'Login failed: ' + JSON.stringify(data);
+                }
+            } catch (error) {
+                errorMsg.innerText = 'Error: ' + error.message;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('auth_token');
+            updateUI();
+        }
+
+        async function loadMenu() {
+            const list = document.getElementById('menu-list');
+            list.innerHTML = 'Loading...';
+            try {
+                const response = await fetch(`${API_BASE}/restaurant/menu/`);
+                const data = await response.json();
+                list.innerHTML = '';
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerText = `${item.Title} - $${item.Price}`;
+                    list.appendChild(li);
+                });
+            } catch (error) {
+                list.innerText = 'Error loading menu';
+            }
+        }
+
+        async function loadBookings() {
+            const token = getToken();
+            if (!token) return;
+
+            const tbody = document.querySelector('#booking-table tbody');
+            tbody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+
+            try {
+                const response = await fetch(`${API_BASE}/restaurant/booking/`, {
+                    headers: { 'Authorization': `Token ${token}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    tbody.innerHTML = '';
+                    data.forEach(item => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${item.ID}</td>
+                            <td>${item.Name}</td>
+                            <td>${item.No_of_guests}</td>
+                            <td>${item.BookingDate}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4">Failed to load bookings</td></tr>';
+                }
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="4">Error loading bookings</td></tr>';
+            }
+        }
+
+        async function createBooking(event) {
+            event.preventDefault();
+            const token = getToken();
+            if (!token) return;
+
+            const name = document.getElementById('booking-name').value;
+            const guests = document.getElementById('booking-guests').value;
+            const date = document.getElementById('booking-date').value;
+            const msg = document.getElementById('booking-msg');
+
+            try {
+                const response = await fetch(`${API_BASE}/restaurant/booking/`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify({ 
+                        Name: name, 
+                        No_of_guests: guests, 
+                        BookingDate: date 
+                    })
+                });
+
+                if (response.ok) {
+                    msg.innerText = 'Booking created successfully!';
+                    msg.style.color = 'green';
+                    loadBookings();
+                    event.target.reset();
+                } else {
+                    const data = await response.json();
+                    msg.innerText = 'Failed: ' + JSON.stringify(data);
+                    msg.style.color = 'red';
+                }
+            } catch (error) {
+                msg.innerText = 'Error: ' + error.message;
+                msg.style.color = 'red';
+            }
+        }
+
+        // Initialize
+        updateUI();
+    </script>
+</body>
+</html>
