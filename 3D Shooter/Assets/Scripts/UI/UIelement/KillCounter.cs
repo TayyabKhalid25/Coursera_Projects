@@ -1,0 +1,47 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// Handles updating the high score display
+/// </summary>
+public class KillCounter : UIelement
+{
+    [Header("References")]
+    [Tooltip("The text that displays the kill count")]
+    public Text displayText = null;
+
+    /// <summary>
+    /// Description:
+    /// Updates the display text with the kill count value
+    /// Input:
+    /// none
+    /// Return:
+    /// void (no return)
+    /// </summary>
+    public void DisplayKills()
+    {
+        if (displayText != null)
+        {
+            displayText.text = "Enemies Left: " + (GameManager.instance.killsRequired - GameManager.currentKills).ToString();
+        }
+    }
+
+    /// <summary>
+    /// Description:
+    /// Updates the UI element according to this class
+    /// Input:
+    /// none
+    /// Return:
+    /// void (no return)
+    /// </summary>
+    public override void UpdateUI()
+    {
+        // This calls the base update UI function from the UIelement class
+        base.UpdateUI();
+
+        // The remaining code is only called for this sub-class of UIelement and not others
+        DisplayKills();
+    }
+}
